@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Finanly{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Dashboard de Finanzas</h1>
+
+<div class="alert alert-info">
+  <strong>Balance actual:</strong> ${{ total_balance|floatformat:2 }}
+</div>
+
+<a href="{% url 'add_transaction' %}" class="btn btn-primary mb-3">Agregar Ingreso/Gasto</a>
+
+<!-- Botones para borrar transacciones -->
+<div class="mb-3">
+  <a href="{% url 'borrar_transacciones_periodo' 'mensual' %}" class="btn btn-danger me-2"
+     onclick="return confirm('¿Seguro que deseas borrar las transacciones del mes actual?');">
+    🗑️ Borrar transacciones del mes
+  </a>
+
+  <a href="{% url 'borrar_transacciones_periodo' 'quincenal' %}" class="btn btn-warning"
+     onclick="return confirm('¿Seguro que deseas borrar las transacciones de la quincena actual?');">
+    🗑️ Borrar transacciones de la quincena
+  </a>
+</div>
+
+<!-- Gráfico -->
+<h3>Resumen Gráfico</h3>
+<div style="max-width: 320px; max-height: 220px; margin: 0 auto;">
+  <canvas id="myChart"></canvas>
+</div>
+
+<table class="table table-bordered table-hover mt-4">
+  <thead class="table-dark">
+    <tr>
+      <th>Fecha</th>
+      <th>Título</th>
+      <th>Tipo</th>
+      <th>Monto</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for trans in transactions %}
+      <tr>
+        <td>{{ trans.date }}</td>
+        <td>{{ trans.title }}</td>
+        <td>{{ trans.type }}</td>
+        <td>${{ trans.amount }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="4" class="text-center">No hay movimientos aún.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('myChart').getContext('2d');
+
+    const ingresos = parseFloat("{{ ingresos|default:0 }}");
+    const gastos = parseFloat("{{ gastos|default:0 }}");
+
+    const myChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Ingresos', 'Gastos'],
+        datasets: [{
+          label: 'Resumen financiero',
+          data: [ingresos, gastos],
+          backgroundColor: [
+            'rgba(54, 162, 235, 0.7)', // azul
+            'rgba(255, 99, 132, 0.7)'  // rojo
+          ],
+          borderColor: [
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 99, 132, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: {
+                size: 12
+              }
+            }
+          },
+          title: {
+            display: true,
+            text: 'Ingresos vs Gastos',
+            font: {
+              size: 16
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
+
+{% endblock %}

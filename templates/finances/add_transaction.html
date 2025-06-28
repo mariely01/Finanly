@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Agregar Movimiento | Finanly{% endblock %}
+
+{% block content %}
+    <h2 class="mb-4">Agregar Ingreso o Gasto</h2>
+
+    <form method="post" class="card p-4 shadow-sm">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success mt-2">Guardar</button>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary mt-2">Cancelar</a>
+    </form>
+{% endblock %}
